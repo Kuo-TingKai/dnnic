@@ -1,0 +1,9 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1760873977" />
+    <testcase name="mac_test_basic" classname="test_mac" file="/Users/kevin.k/dnnic/test_mac.py" lineno="5" time="0.0004169940948486328" sim_time_ns="1.0" ratio_time="2398.1154945683247" />
+    <testcase name="mac_test_max_values" classname="test_mac" file="/Users/kevin.k/dnnic/test_mac.py" lineno="25" time="0.00011491775512695312" sim_time_ns="1.0" ratio_time="8701.8755186722" />
+    <testcase name="mac_test_random" classname="test_mac" file="/Users/kevin.k/dnnic/test_mac.py" lineno="45" time="0.0005261898040771484" sim_time_ns="10.0" ratio_time="19004.54916175804" />
+    <testcase name="mac_test_edge_cases" classname="test_mac" file="/Users/kevin.k/dnnic/test_mac.py" lineno="66" time="0.00020313262939453125" sim_time_ns="2.0" ratio_time="9845.784037558686" />
+  </testsuite>
+</testsuites>

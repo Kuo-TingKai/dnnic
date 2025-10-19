@@ -1,0 +1,63 @@
+# Physical Constraints File (PCF) for MAC unit
+# This file maps the MAC unit ports to FPGA pins
+# Example pin assignments for iCE40 FPGA development board
+
+# Input A (8-bit) - mapped to switches or external inputs
+set_io A[0] 21
+set_io A[1] 22
+set_io A[2] 23
+set_io A[3] 24
+set_io A[4] 25
+set_io A[5] 26
+set_io A[6] 27
+set_io A[7] 28
+
+# Weight W (8-bit) - mapped to switches or external inputs
+set_io W[0] 31
+set_io W[1] 32
+set_io W[2] 33
+set_io W[3] 34
+set_io W[4] 35
+set_io W[5] 36
+set_io W[6] 37
+set_io W[7] 38
+
+# Bias B (16-bit) - mapped to switches or external inputs
+set_io B[0] 41
+set_io B[1] 42
+set_io B[2] 43
+set_io B[3] 44
+set_io B[4] 45
+set_io B[5] 46
+set_io B[6] 47
+set_io B[7] 48
+set_io B[8] 51
+set_io B[9] 52
+set_io B[10] 53
+set_io B[11] 54
+set_io B[12] 55
+set_io B[13] 56
+set_io B[14] 57
+set_io B[15] 58
+
+# Output C (16-bit) - mapped to LEDs for observation
+set_io C[0] 61
+set_io C[1] 62
+set_io C[2] 63
+set_io C[3] 64
+set_io C[4] 65
+set_io C[5] 66
+set_io C[6] 67
+set_io C[7] 68
+set_io C[8] 71
+set_io C[9] 72
+set_io C[10] 73
+set_io C[11] 74
+set_io C[12] 75
+set_io C[13] 76
+set_io C[14] 77
+set_io C[15] 78
+
+# Note: These pin numbers are examples for demonstration
+# In a real project, you would need to check your specific FPGA board's
+# pinout and assign pins accordingly

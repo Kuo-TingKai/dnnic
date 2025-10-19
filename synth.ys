@@ -1,0 +1,33 @@
+# Yosys synthesis script for MAC unit
+# This script synthesizes the MAC unit to a gate-level netlist
+
+# Read the Verilog design file
+read_verilog mac_unit.v
+
+# Select the top-level module
+hierarchy -top mac_unit
+
+# Perform synthesis
+synth -top mac_unit
+
+# Optimize the design
+opt
+
+# Map to generic gates (for demonstration)
+# In a real FPGA flow, you would map to specific FPGA primitives
+abc
+
+# Write the synthesized Verilog netlist
+write_verilog mac_unit_synth.v
+
+# Write JSON format for nextpnr (if using FPGA flow)
+write_json mac_unit.json
+
+# Show statistics
+stat
+
+# Show the hierarchy
+hierarchy
+
+# Show the final netlist structure
+show mac_unit
