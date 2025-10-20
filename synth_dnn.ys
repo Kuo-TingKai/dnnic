@@ -1,0 +1,34 @@
+# Yosys synthesis script for DNN accelerator
+# This script synthesizes the DNN accelerator to a gate-level netlist
+
+# Read the Verilog design files
+read_verilog mac_unit.v
+read_verilog dnn_accelerator.v
+
+# Select the top-level module
+hierarchy -top dnn_accelerator
+
+# Perform synthesis
+synth -top dnn_accelerator
+
+# Optimize the design
+opt
+
+# Map to generic gates (for demonstration)
+# In a real FPGA flow, you would map to specific FPGA primitives
+abc
+
+# Write the synthesized Verilog netlist
+write_verilog dnn_accelerator_synth.v
+
+# Write JSON format for nextpnr (if using FPGA flow)
+write_json dnn_accelerator.json
+
+# Show statistics
+stat
+
+# Show the hierarchy
+hierarchy
+
+# Show the final netlist structure
+show dnn_accelerator

@@ -94,11 +94,63 @@ iceprog mac_unit.bin
 成功的測試輸出應該類似：
 
 ```
-mac_test_basic (PASS)
-mac_test_max_values (PASS)
-mac_test_random (PASS)
-mac_test_edge_cases (PASS)
+** TEST                          STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+** test_mac.mac_test_basic        PASS           1.00           0.00       2398.12  **
+** test_mac.mac_test_max_values   PASS           1.00           0.00       8701.88  **
+** test_mac.mac_test_random       PASS          10.00           0.00      19004.55  **
+** test_mac.mac_test_edge_cases   PASS           2.00           0.00       9845.78  **
+** TESTS=4 PASS=4 FAIL=0 SKIP=0                 14.00           0.00       6198.72  **
 ```
+
+## 合成結果與視覺化
+
+### 閘級網表統計
+執行 `make synth` 後，Yosys 會產生詳細的合成報告：
+
+```
+=== mac_unit ===
+        +----------Local Count, excluding submodules.
+        | 
+      872 wires
+      916 wire bits
+        4 public wires
+       48 public wire bits
+        4 ports
+       48 port bits
+      412 cells
+        8   $_ANDNOT_
+       85   $_AND_
+      164   $_NAND_
+        1   $_NOR_
+       14   $_OR_
+       34   $_XNOR_
+      106   $_XOR_
+```
+
+### 合成後的閘級網表
+合成後的 `mac_unit_synth.v` 包含：
+- **412 個邏輯閘**：包含 AND、NAND、XOR、XNOR 等基本邏輯閘
+- **872 條內部連線**：連接各個邏輯閘
+- **48 個 I/O 位元**：8+8+16+16 = 48 位元的輸入輸出
+
+### 電路架構視覺化
+MAC 單元的邏輯結構：
+
+```
+    A[7:0] ──┐
+             │
+             ├─→ 8×8 乘法器 ──┐
+             │                │
+    W[7:0] ──┘                │
+                               ├─→ 16位元加法器 ──→ C[15:0]
+                               │
+    B[15:0] ──────────────────┘
+```
+
+### 合成優化結果
+- **乘法器優化**：8×8 乘法器被優化為 412 個基本邏輯閘
+- **加法器優化**：16位元加法器使用進位傳播加法器結構
+- **面積效率**：總共使用 412 個邏輯閘實現完整的 MAC 功能
 
 ## 檔案說明
 
@@ -128,13 +180,177 @@ mac_test_edge_cases (PASS)
 - 引腳對應設定
 - 適用於 iCE40 FPGA
 
-## 擴展建議
+## DNN 加速器擴展
 
-1. **增加時鐘域**: 將 MAC 單元改為同步設計
-2. **流水線設計**: 增加暫存器來提高時鐘頻率
-3. **多個 MAC 單元**: 實作陣列處理器
-4. **記憶體介面**: 增加權重和資料的記憶體存取
-5. **控制邏輯**: 增加狀態機來控制運算流程
+### 完整 DNN 加速器架構
+本專案已擴展為完整的 2 層神經網路加速器：
+
+```
+輸入層 (4 個輸入) → 隱藏層 (3 個神經元) → 輸出層 (2 個輸出)
+```
+
+### DNN 加速器特色
+- **狀態機控制**: 自動化運算流程
+- **權重儲存**: 內建權重和偏置記憶體
+- **時鐘同步**: 完整的時鐘域設計
+- **控制信號**: start、done、valid 信號
+
+### DNN 加速器使用方式
+
+1. **測試 DNN 加速器**:
+   ```bash
+   source venv/bin/activate
+   make test-dnn
+   ```
+
+2. **合成 DNN 加速器**:
+   ```bash
+   make synth-dnn
+   ```
+
+### DNN 加速器架構圖
+```
+    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+    │   輸入層    │    │   隱藏層    │    │   輸出層    │
+    │ 4 個輸入    │───▶│ 3 個神經元  │───▶│ 2 個輸出    │
+    └─────────────┘    └─────────────┘    └─────────────┘
+           │                   │                   │
+           ▼                   ▼                   ▼
+    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+    │   MAC 單元  │    │   MAC 單元  │    │   MAC 單元  │
+    │ 4×3 權重    │    │ 3×2 權重    │    │ 偏置加法    │
+    └─────────────┘    └─────────────┘    └─────────────┘
+```
+
+### DNN 加速器測試結果
+```
+** TEST                                     STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+** test_dnn.dnn_test_basic_functionality     PASS         230.00           0.00     280107.41  **
+** test_dnn.dnn_test_multiple_computations   PASS         440.00           0.00     477365.17  **
+** test_dnn.dnn_test_state_machine           PASS         230.00           0.00     672726.58  **
+** test_dnn.dnn_test_edge_cases              PASS         440.00           0.00     333001.40  **
+** test_dnn.dnn_test_random_inputs           PASS        1080.00           0.00     787936.74  **
+** TESTS=5 PASS=5 FAIL=0 SKIP=0                          2420.00           0.01     367176.69  **
+```
+
+### DNN 加速器合成結果
+執行 `make synth-dnn` 後，Yosys 會產生詳細的合成報告：
+
+```
+=== dnn_accelerator ===
+        +----------Local Count, excluding submodules.
+        | 
+     1425 wires
+     1796 wire bits
+       45 public wires
+      396 public wire bits
+       15 ports
+      117 port bits
+      671 cells
+       25   $_ANDNOT_
+      132   $_AND_
+       24   $_DFFE_PN0P_
+       32   $_DFFE_PP_
+       27   $_MUX_
+      228   $_NAND_
+        7   $_NOR_
+        9   $_NOT_
+       17   $_ORNOT_
+       24   $_OR_
+       41   $_XNOR_
+      105   $_XOR_
+        1 submodules
+        1   mac_unit
+```
+
+### DNN 加速器合成後的閘級網表
+合成後的 `dnn_accelerator_synth.v` 包含：
+- **671 個邏輯閘**：包含 AND、NAND、XOR、XNOR、MUX、DFF 等基本邏輯閘
+- **1425 條內部連線**：連接各個邏輯閘
+- **117 個 I/O 位元**：時鐘、重置、控制信號和資料輸入輸出
+- **1 個子模組**：內嵌的 MAC 單元
+
+## 軟硬體一致性驗證
+
+本專案實現了完整的軟硬體 DNN 一致性驗證流程：
+
+### 1. 軟體 DNN 訓練
+使用 PyTorch 訓練一個小型 2 層神經網路：
+```bash
+make train-model
+```
+
+**訓練結果**：
+- 測試準確率：79.5%
+- 模型架構：4 輸入 → 3 隱藏神經元 → 2 輸出
+- 參數數量：18 個權重 + 5 個偏置
+
+### 2. 參數轉換
+將軟體模型參數轉換為硬體相容格式：
+```bash
+make convert-params
+```
+
+**轉換結果**：
+- Layer 1 權重：4×3 矩陣，8 位元整數
+- Layer 1 偏置：3 個值，16 位元整數
+- Layer 2 權重：3×2 矩陣，8 位元整數
+- Layer 2 偏置：2 個值，16 位元整數
+
+### 3. 硬體 DNN 加速器
+實作可配置的硬體 DNN 加速器：
+- 支援動態參數載入
+- 狀態機控制計算流程
+- MAC 單元並行運算
+
+### 4. 一致性驗證
+比較軟體和硬體 DNN 的輸出結果：
+```bash
+python3 verify_consistency.py
+```
+
+**驗證結果**：
+```
+=== Software-Hardware DNN Consistency Verification ===
+Loaded 10 test vectors
+
+Test 1: Input=[70, 120, 201, 51]
+  Software: [104450.00, 72861.00]
+  Hardware: [104450.00, 72861.00]
+  Difference: [    0.00,     0.00] ✅ PASS
+
+Test 2: Input=[65, 64, 127, 96]
+  Software: [   59.00,   -47.00]
+  Hardware: [   59.00,   -47.00]
+  Difference: [    0.00,     0.00] ✅ PASS
+
+... (所有 10 個測試案例)
+
+=== Summary ===
+Maximum difference across all tests: 0.000000
+✅ ALL TESTS PASSED - Software and hardware outputs are consistent!
+```
+
+### 5. 完整流程
+執行完整的訓練和驗證流程：
+```bash
+make full-pipeline
+```
+
+這將依序執行：
+1. 軟體模型訓練
+2. 參數轉換
+3. 硬體測試
+4. 一致性驗證
+
+## 進一步擴展建議
+
+1. **增加層數**: 擴展為多層深度神經網路
+2. **並行處理**: 實作多個 MAC 單元並行運算
+3. **記憶體介面**: 增加外部記憶體存取權重和資料
+4. **激活函數**: 加入 ReLU、Sigmoid 等激活函數
+5. **量化支援**: 支援不同位元寬度的量化運算
+6. **流水線設計**: 增加暫存器來提高時鐘頻率
 
 ## 故障排除
 
